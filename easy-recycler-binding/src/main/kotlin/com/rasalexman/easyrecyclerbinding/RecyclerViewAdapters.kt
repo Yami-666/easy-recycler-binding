@@ -62,7 +62,11 @@ fun <ItemType : Any, BindingType : ViewDataBinding> setupViewPager2(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             viewPager.defaultFocusHighlightEnabled = false
         }
-        viewPager.adapter = dataBindingRecyclerViewConfig.createAdapter(oldItems)
+        val adapter = dataBindingRecyclerViewConfig.createAdapter(oldItems)
+        viewPager.adapter = adapter
+
+        // invoke onAdapterAdded callback
+        dataBindingRecyclerViewConfig.onAdapterAdded?.invoke(adapter)
 
         val callbackKey = viewPager.hashCode().toString()
         val lastCallback = changeCallbackMap.getOrPut(callbackKey) {
@@ -166,10 +170,9 @@ fun <ItemType : Any, BindingType : ViewDataBinding> setupRecyclerView(
 
         val adapter = dataBindingRecyclerViewConfig.createAdapter(oldItems)
         // create adapter
-        recyclerView.swapAdapter(adapter, false).also {
-            // invoke onAdapterAdded callback
-            dataBindingRecyclerViewConfig.onAdapterAdded?.invoke(adapter)
-        }
+        recyclerView.swapAdapter(adapter, false)
+        // invoke onAdapterAdded callback
+        dataBindingRecyclerViewConfig.onAdapterAdded?.invoke(adapter)
 
         // create scroll position observer and scroll listener recalculation
         val lifecycleOwner = try {
